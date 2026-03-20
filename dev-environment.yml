@@ -1,0 +1,9 @@
+name: conda-intro-dev
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - numpy
+  # Dev tools
+  - just
+  - pre-commit

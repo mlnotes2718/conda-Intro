@@ -1,0 +1,11 @@
+title = "My Gitleaks Config"
+
+[allowlist]
+description = "Ignore non-source folders"
+paths = [
+    '''.venv''',
+    '''node_modules''',
+    '''\.git''',
+    '''dist''',
+    '''build'''
+]

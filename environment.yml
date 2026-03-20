@@ -1,0 +1,6 @@
+name: conda-intro
+channels:
+  - defaults
+dependencies:
+  - python=3.12
+  - numpy

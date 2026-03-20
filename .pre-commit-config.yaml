@@ -1,0 +1,84 @@
+# .pre-commit-config.yaml
+repos:
+  # Catches common security/quality issues in YAML, JSON, TOML, etc.
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-merge-conflict     # blocks accidental merge conflict markers
+        stages: [pre-commit]         # run on commit
+      - id: check-added-large-files  # prevents committing huge files
+        args: ['--maxkb=500']
+        stages: [pre-commit]         # run on commit
+      - id: check-toml               # validates pyproject.toml syntax
+        stages: [pre-commit]         # run on commit
+      - id: check-yaml               # validates YAML syntax
+        stages: [pre-commit]         # run on commit
+      - id: check-json               # validates JSON syntax
+        exclude: (^\.vscode/|^.devcontainer/)         # This tells the hook to skip the VS Code folder and dev container files
+        stages: [pre-commit]         # run on commit
+      - id: end-of-file-fixer        # ensures files end with newline
+        stages: [pre-commit]         # run on commit
+      - id: trailing-whitespace      # removes trailing whitespace
+        stages: [pre-commit]         # run on commit
+      - id: debug-statements         # catches forgotten pdb/breakpoint()
+        stages: [pre-commit]         # run on commit
+      - id: detect-private-key       # secondary layer under gitleaks
+        stages: [pre-commit]         # run on commit
+
+  # Gitleaks - scans for secrets in git history, configured via .gitleaks.toml
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        args: ["--redact", "--report-format=csv", "--report-path=./logs/gitleaks_report.csv"]
+        stages: [pre-commit, pre-push]
+
+  # # Ruff - remote is fine, auto-discovers pyproject.toml
+  # - repo: https://github.com/astral-sh/ruff-pre-commit
+  #   rev: v0.15.5
+  #   hooks:
+  #     - id: ruff
+  #       args: [--fix]
+  #       stages: [pre-commit]
+  #     - id: ruff-format
+  #       stages: [pre-commit]
+
+  # # Bandit - security linter for Python, configured via pyproject.toml
+  # - repo: https://github.com/PyCQA/bandit
+  #   rev: 1.9.4  # use latest version
+  #   hooks:
+  #     - id: bandit
+  #       args: ["-ll", "-c", "pyproject.toml"]
+  #       exclude: ^tests/
+  #       stages: [pre-commit]
+
+
+  # # pip-audit and trivy - security vulnerability scanners for Python dependencies
+  # - repo: local
+  #   hooks:
+  #     - id: pip-audit
+  #       name: pip-audit
+  #       entry: just audit
+  #       language: system
+  #       pass_filenames: false
+  #       files: ^(pyproject\.toml|uv\.lock)$
+  #       stages: [pre-push] # ← only on push
+
+  # # Following hooks run on local system, not from a remote repo
+  # # mupy, pytest config
+  # - repo: local
+  #   hooks:
+  #     - id: mypy
+  #       name: mypy
+  #       entry: just typecheck # old entry: uv run mypy src
+  #       language: system
+  #       types: [python]
+  #       pass_filenames: false
+  #       stages: [pre-push]  # ← only on push
+
+  #     - id: pytest
+  #       name: pytest
+  #       entry: just test # oldentry: uv run pytest --cov --cov-report=term-missing
+  #       language: system
+  #       pass_filenames: false
+  #       stages: [pre-push]    # ← only on push
